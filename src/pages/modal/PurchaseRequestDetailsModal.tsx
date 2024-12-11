@@ -12,6 +12,7 @@ import { Button } from "../../components/ui/button";
 import { Textarea } from "../../components/ui/textarea";
 import axios from 'axios';
 
+// Basic item interface
 interface PurchaseRequestItem {
   id: number;
   item_title: string;
@@ -21,11 +22,12 @@ interface PurchaseRequestItem {
   description: string;
 }
 
-interface PurchaseRequestResponse {
+// Full purchase request interface
+interface PurchaseRequest {
   id: number;
   title: string;
   department: string;
-  status: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
   purchase_type: string;
   created_at: string;
   initiator_name: string;
@@ -33,20 +35,19 @@ interface PurchaseRequestResponse {
   rejection_reason?: string;
 }
 
+// Modal props interface
 interface PurchaseRequestDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  purchaseRequest: {
-    id: number;
-    title: string;
-    department: string;
-    status: string;
-    purchase_type: string;
-    created_at: string;
-    initiator_name: string;
-    items: PurchaseRequestItem[];
-  } | null;
+  purchaseRequest: PurchaseRequest | null;
   onRequestUpdate?: () => void;
+}
+
+// Optional: Response type if it differs from PurchaseRequest
+interface PurchaseRequestResponse extends PurchaseRequest {
+  // Add any additional fields that might come from the API
+  updated_at?: string;
+  approver_name?: string;
 }
 
 const PurchaseRequestDetailsModal = ({
@@ -54,13 +55,12 @@ const PurchaseRequestDetailsModal = ({
   onClose,
   purchaseRequest,
   onRequestUpdate
-}: PurchaseRequestDetailsModalProps) => {
+}: PurchaseRequestDetailsModalProps): JSX.Element | null => {
   const [isRejecting, setIsRejecting] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Reset states when modal closes
   const handleClose = () => {
     setIsRejecting(false);
     setRejectionReason('');
@@ -68,12 +68,10 @@ const PurchaseRequestDetailsModal = ({
     onClose();
   };
 
-  // Reset error when switching between approve/reject modes
   useEffect(() => {
     setError('');
   }, [isRejecting]);
 
-  // Reset states when modal opens with new purchase request
   useEffect(() => {
     if (isOpen) {
       setIsRejecting(false);
@@ -97,7 +95,6 @@ const PurchaseRequestDetailsModal = ({
       const token = localStorage.getItem('token');
       if (!token) {
         setError('Session expired. Please login again.');
-        // You might want to trigger a logout or redirect to login here
         return;
       }
 
@@ -106,8 +103,8 @@ const PurchaseRequestDetailsModal = ({
         ...(action === 'REJECTED' && { rejection_reason: rejectionReason.trim() })
       };
 
-      const response = await axios.put<PurchaseRequestResponse>(
-        `http://localhost:8000/api/purchase-requests/${purchaseRequest.id}/`,
+      const response = await axios.patch<PurchaseRequestResponse>(
+        `/api/purchase-request-status/${purchaseRequest.id}/update_status/`,
         payload,
         {
           headers: {
@@ -117,37 +114,63 @@ const PurchaseRequestDetailsModal = ({
         }
       );
 
-      setIsRejecting(false);
-      setRejectionReason('');
-      if (onRequestUpdate) {
-        onRequestUpdate();
+      if (response.data) {
+        setIsRejecting(false);
+        setRejectionReason('');
+        if (onRequestUpdate) {
+          onRequestUpdate();
+        }
+        handleClose();
       }
-      handleClose();
 
     } catch (err: any) {
-      const errorMessage = err.response?.data?.detail ||
-                          err.response?.data?.message ||
-                          'Failed to update purchase request';
+      let errorMessage = 'Failed to update purchase request';
 
-      // Handle specific error cases
-      if (err.response?.status === 401) {
-        setError('Session expired. Please login again.');
-        // You might want to trigger a logout here
-      } else if (err.response?.status === 403) {
-        setError('You do not have permission to perform this action.');
-      } else {
-        setError(errorMessage);
+      if (axios.isAxiosError(err)) {
+        if (err.response?.status === 401) {
+          errorMessage = 'Session expired. Please login again.';
+          // Handle logout if needed
+          // logout();
+        } else if (err.response?.status === 403) {
+          errorMessage = 'You do not have permission to perform this action.';
+        } else if (err.response?.status === 404) {
+          errorMessage = 'Purchase request not found.';
+        } else if (err.response?.data?.detail) {
+          errorMessage = err.response.data.detail;
+        }
       }
+
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const canShowActions = purchaseRequest.status === 'PENDING';
+  const formatDate = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleString();
+    } catch (err) {
+      return 'Invalid Date';
+    }
+  };
+
+  const getStatusBadgeClasses = (status: string) => {
+    const baseClasses = 'px-2 py-1 rounded-full text-xs';
+    switch (status) {
+      case 'PENDING':
+        return `${baseClasses} bg-yellow-100 text-yellow-800`;
+      case 'APPROVED':
+        return `${baseClasses} bg-green-100 text-green-800`;
+      case 'REJECTED':
+        return `${baseClasses} bg-red-100 text-red-800`;
+      default:
+        return `${baseClasses} bg-gray-100 text-gray-800`;
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-3xl max-h-[100vh] overflow-hidden">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle>Purchase Request Details</DialogTitle>
         </DialogHeader>
@@ -170,17 +193,14 @@ const PurchaseRequestDetailsModal = ({
             <div>
               <p className="text-gray-500">Status</p>
               <p className="font-medium">
-                <span className={`px-2 py-1 rounded-full text-xs 
-                  ${purchaseRequest.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' : 
-                    purchaseRequest.status === 'APPROVED' ? 'bg-green-100 text-green-800' : 
-                    'bg-red-100 text-red-800'}`}>
+                <span className={getStatusBadgeClasses(purchaseRequest.status)}>
                   {purchaseRequest.status}
                 </span>
               </p>
             </div>
             <div>
               <p className="text-gray-500">Created At</p>
-              <p className="font-medium">{new Date(purchaseRequest.created_at).toLocaleString()}</p>
+              <p className="font-medium">{formatDate(purchaseRequest.created_at)}</p>
             </div>
             <div>
               <p className="text-gray-500">Initiator</p>
@@ -223,7 +243,7 @@ const PurchaseRequestDetailsModal = ({
             </ScrollArea>
           </div>
 
-          {/* Rejection Reason Textarea */}
+          {/* Rejection Reason Input */}
           {isRejecting && (
             <div className="space-y-2">
               <label className="text-sm font-medium">
@@ -241,12 +261,14 @@ const PurchaseRequestDetailsModal = ({
 
           {/* Error Message */}
           {error && (
-            <p className="text-sm text-red-500 mt-2">{error}</p>
+            <div className="bg-red-50 text-red-500 p-3 rounded-md text-sm">
+              {error}
+            </div>
           )}
         </div>
 
         {/* Action Buttons */}
-        {canShowActions && (
+        {purchaseRequest.status === 'PENDING' && (
           <DialogFooter className="sm:justify-end space-x-2">
             {isRejecting ? (
               <>

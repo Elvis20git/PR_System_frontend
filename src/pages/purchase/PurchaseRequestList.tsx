@@ -327,6 +327,7 @@ const PurchaseRequestList = () => {
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
             purchaseRequest={selectedRequest}
+            onRequestUpdate={fetchPurchaseRequests}
           />
         </div>
       </div>
