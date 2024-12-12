@@ -114,10 +114,26 @@ const TopCategories = ({ categories }) => (
 );
 
 // Add this helper function to format the date properly
-const formatDate = (date) => {
+// const formatDate = (date) => {
+//   if (!date) return '';
+//   const d = new Date(date);
+//   return d.toLocaleString('default', { month: 'short' });
+// };
+
+const formatDate = (date, period) => {
   if (!date) return '';
   const d = new Date(date);
-  return d.toLocaleString('default', { month: 'short' });
+
+  switch (period) {
+    case 'Weekly':
+      return d.toLocaleString('default', { weekday: 'short' }); // Shows 'Mon', 'Tue', etc.
+    case 'Monthly':
+      return d.toLocaleString('default', { month: 'short' }); // Shows 'Jan', 'Feb', etc.
+    case 'Yearly':
+      return d.getFullYear().toString(); // Shows '2024', '2025', etc.
+    default:
+      return d.toLocaleString('default', { month: 'short' });
+  }
 };
 
 const Dashboard = () => {
@@ -281,7 +297,7 @@ const Dashboard = () => {
                     />
                     <XAxis
                       dataKey="month"
-                      tickFormatter={formatDate}
+                      tickFormatter={(date) => formatDate(date, selectedPeriod)}
                       axisLine={false}
                       tickLine={false}
                       tick={{ fill: '#666', fontSize: 12 }}
@@ -300,7 +316,7 @@ const Dashboard = () => {
                         borderRadius: '4px',
                         padding: '8px'
                       }}
-                      labelFormatter={formatDate}
+                      labelFormatter={(date) => formatDate(date, selectedPeriod)}
                     />
                     <Line
                       type="monotone"
