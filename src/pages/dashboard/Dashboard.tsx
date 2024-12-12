@@ -37,7 +37,7 @@ const RecentActivity = ({ activity }) => {
   );
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-sm h-[200px] flex flex-col">
+    <div className="bg-white p-6 rounded-lg shadow-sm h-[250px] flex flex-col">
       <div className="flex justify-between items-center mb-4 flex-shrink-0">
         <h3 className="text-lg font-semibold">Recent Activity</h3>
         <div className="relative w-[200px]">
@@ -88,10 +88,10 @@ const RecentActivity = ({ activity }) => {
 };
 
 const TopCategories = ({ categories }) => (
-  <div className="bg-white p-6 rounded-lg shadow-sm h-[200px] flex flex-col">
+  <div className="bg-white p-6 rounded-lg shadow-sm h-[250px] flex flex-col overflow-y-auto">
     <div className="flex justify-between items-center mb-4 flex-shrink-0">
       <h3 className="text-lg font-semibold">Top Request Categories</h3>
-      <a href="#" className="text-blue-600 text-sm">View All</a>
+      <a href="/purchase-request-list" className="text-blue-600 text-sm">View All</a>
     </div>
     <div className="overflow-y-auto flex-grow scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
       <div className="space-y-4">
@@ -105,12 +105,6 @@ const TopCategories = ({ categories }) => (
                 <span className="mx-2 text-gray-300">•</span>
                 {/*<span className="text-sm text-gray-500">${category.amount}</span>*/}
               </div>
-            </div>
-            <div className="w-24 bg-green-100 h-2 rounded-full flex-shrink-0">
-              <div
-                className="bg-green-500 h-2 rounded-full"
-                style={{ width: `${category.percentage}%` }}
-              />
             </div>
           </div>
         ))}
@@ -232,157 +226,157 @@ const Dashboard = () => {
               Export Report
             </button>
           </div>
+          <div className="lg:col-span-2 bg-gray-100 p-6 rounded-lg shadow-sm h-[calc(90vh-64px)] overflow-y-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+              <StatCard
+                title="Total Requests"
+                value={dashboardData?.total_requests}
+                isPositive={true}
+              />
+              <StatCard
+                title="Pending Approval"
+                value={dashboardData?.pending_approval}
+                isPositive={false}
+              />
+              <StatCard
+                title="Approved This Month"
+                value={dashboardData?.approved_this_month}
+                isPositive={true}
+              />
+              <StatCard
+                title="Rejected This Month"
+                value={dashboardData?.rejected_this_month}
+                isPositive={false}
+              />
+            </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-            <StatCard
-              title="Total Requests"
-              value={dashboardData?.total_requests}
-              isPositive={true}
-            />
-            <StatCard
-              title="Pending Approval"
-              value={dashboardData?.pending_approval}
-              isPositive={false}
-            />
-            <StatCard
-              title="Approved This Month"
-              value={dashboardData?.approved_this_month}
-              isPositive={true}
-            />
-            <StatCard
-              title="Rejected This Month"
-              value={dashboardData?.rejected_this_month}
-              isPositive={false}
-            />
-          </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm">
+                <h3 className="text-lg font-semibold mb-4">Request Trends</h3>
+                <div className="flex gap-2 mb-4">
+                  {['Weekly', 'Monthly', 'Yearly'].map((period) => (
+                      <button
+                          key={period}
+                          onClick={() => setSelectedPeriod(period)}
+                          className={`px-4 py-1.5 rounded-md transition-colors ${
+                              selectedPeriod === period
+                                  ? 'bg-gray-100 text-gray-900 font-medium'
+                                  : 'text-gray-600 hover:bg-gray-50'
+                          }`}
+                      >
+                        {period}
+                      </button>
+                  ))}
+                </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm">
-              <h3 className="text-lg font-semibold mb-4">Request Trends</h3>
-              <div className="flex gap-2 mb-4">
-                {['Weekly', 'Monthly', 'Yearly'].map((period) => (
-                    <button
-                        key={period}
-                        onClick={() => setSelectedPeriod(period)}
-                        className={`px-4 py-1.5 rounded-md transition-colors ${
-                            selectedPeriod === period
-                                ? 'bg-gray-100 text-gray-900 font-medium'
-                                : 'text-gray-600 hover:bg-gray-50'
-                        }`}
-                    >
-                      {period}
-                    </button>
-                ))}
+                <ResponsiveContainer width="90%" height={250}>
+                  <LineChart
+                    data={dashboardData?.monthly_trends}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="#f0f0f0"
+                      vertical={false}
+                    />
+                    <XAxis
+                      dataKey="month"
+                      tickFormatter={formatDate}
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: '#666', fontSize: 12 }}
+                      dy={10}
+                    />
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: '#666', fontSize: 12 }}
+                      dx={-10}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: '#fff',
+                        border: '1px solid #f0f0f0',
+                        borderRadius: '4px',
+                        padding: '8px'
+                      }}
+                      labelFormatter={formatDate}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="approved"
+                      stroke="#10B981"
+                      strokeWidth={2}
+                      dot={{ fill: '#10B981', strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="pending"
+                      stroke="#F59E0B"
+                      strokeWidth={2}
+                      dot={{ fill: '#F59E0B', strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="rejected"
+                      stroke="#EF4444"
+                      strokeWidth={2}
+                      dot={{ fill: '#EF4444', strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6 }}
+                    />
+                    <Legend
+                      verticalAlign="top"
+                      align="right"
+                      iconType="circle"
+                      wrapperStyle={{
+                        paddingBottom: '20px'
+                      }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
 
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart
-                  data={dashboardData?.monthly_trends}
-                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="#f0f0f0"
-                    vertical={false}
-                  />
-                  <XAxis
-                    dataKey="month"
-                    tickFormatter={formatDate}
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: '#666', fontSize: 12 }}
-                    dy={10}
-                  />
-                  <YAxis
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: '#666', fontSize: 12 }}
-                    dx={-10}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#fff',
-                      border: '1px solid #f0f0f0',
-                      borderRadius: '4px',
-                      padding: '8px'
-                    }}
-                    labelFormatter={formatDate}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="approved"
-                    stroke="#10B981"
-                    strokeWidth={2}
-                    dot={{ fill: '#10B981', strokeWidth: 2, r: 4 }}
-                    activeDot={{ r: 6 }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="pending"
-                    stroke="#F59E0B"
-                    strokeWidth={2}
-                    dot={{ fill: '#F59E0B', strokeWidth: 2, r: 4 }}
-                    activeDot={{ r: 6 }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="rejected"
-                    stroke="#EF4444"
-                    strokeWidth={2}
-                    dot={{ fill: '#EF4444', strokeWidth: 2, r: 4 }}
-                    activeDot={{ r: 6 }}
-                  />
-                  <Legend
-                    verticalAlign="top"
-                    align="right"
-                    iconType="circle"
-                    wrapperStyle={{
-                      paddingBottom: '20px'
-                    }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <h3 className="text-lg font-semibold mb-4">Requests by Department</h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                        data={dashboardData?.department_distribution}
+                        dataKey="count"
+                        nameKey="department"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={100}
+                        label={renderCustomizedLabel}
+                        labelLine={true}
+                    >
+                      {dashboardData?.department_distribution?.map((entry, index) => (
+                          <Cell
+                              key={`cell-${index}`}
+                              fill={DEPARTMENT_COLORS[entry.department] || '#666'}
+                          />
+                      ))}
+                    </Pie>
+                    <Legend
+                      layout="horizontal"
+                      verticalAlign="bottom"
+                      align="center"
+                      wrapperStyle={{ paddingTop: '20px' }}
+                    />
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
             </div>
 
-
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h3 className="text-lg font-semibold mb-4">Requests by Department</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                      data={dashboardData?.department_distribution}
-                      dataKey="count"
-                      nameKey="department"
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={100}
-                      label={renderCustomizedLabel}
-                      labelLine={true}
-                  >
-                    {dashboardData?.department_distribution?.map((entry, index) => (
-                        <Cell
-                            key={`cell-${index}`}
-                            fill={DEPARTMENT_COLORS[entry.department] || '#666'}
-                        />
-                    ))}
-                  </Pie>
-                  <Legend
-                    layout="horizontal"
-                    verticalAlign="bottom"
-                    align="center"
-                    wrapperStyle={{ paddingTop: '20px' }}
-                  />
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+              <RecentActivity activity={dashboardData?.recent_activity} />
+              <TopCategories categories={dashboardData?.top_categories} />
             </div>
           </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-            <RecentActivity activity={dashboardData?.recent_activity} />
-            <TopCategories categories={dashboardData?.top_categories} />
-          </div>
-
         </main>
       </div>
     </div>
