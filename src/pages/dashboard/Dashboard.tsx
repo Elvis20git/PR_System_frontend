@@ -6,7 +6,40 @@ import Sidebar from '../../../src/components/layout/Sidebar';
 import Navbar from '../../../src/components/layout/Navbar';
 import { CDropdown, CDropdownItem, CDropdownMenu, CDropdownToggle } from "@coreui/react";
 
-const DEPARTMENT_COLORS = {
+interface StatCardProps {
+  title: string;
+  value: number;
+  percentage?: number;
+  isPositive?: boolean;
+}
+
+interface ActivityItem {
+  title: string;
+  department: string;
+  id: number;
+  time: string;
+}
+
+interface Category {
+  name: string;
+  purchase_type: string;
+  count: number;
+}
+
+interface DashboardData {
+  total_requests: number;
+  pending_approval: number;
+  approved_this_month: number;
+  rejected_this_month: number;
+  monthly_trends: any[];
+  department_distribution: any[];
+  recent_activity: ActivityItem[];
+  top_categories: Category[];
+}
+
+type DepartmentName = 'IT & Business Support' | 'Finance' | 'Quality Assurance' | 'Marketing' | 'Operations';
+
+const DEPARTMENT_COLORS: Record<DepartmentName, string> = {
   'IT & Business Support': '#3B82F6',
   'Finance': '#10B981',
   'Quality Assurance': '#F59E0B',
@@ -14,7 +47,7 @@ const DEPARTMENT_COLORS = {
   'Operations': '#8B5CF6'
 };
 
-const StatCard = ({ title, value, percentage, isPositive }) => (
+const StatCard = ({ title, value, percentage, isPositive }: StatCardProps) => (
   <div className="bg-white p-6 rounded-lg shadow-sm">
     <h3 className="text-gray-500 text-sm">{title}</h3>
     <div className="flex items-center mt-2">
@@ -29,7 +62,7 @@ const StatCard = ({ title, value, percentage, isPositive }) => (
   </div>
 );
 
-const RecentActivity = ({ activity }) => {
+const RecentActivity = ({ activity }: { activity?: ActivityItem[] }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredActivity = activity?.filter(item =>
@@ -87,7 +120,7 @@ const RecentActivity = ({ activity }) => {
   );
 };
 
-const TopCategories = ({ categories }) => (
+const TopCategories = ({ categories }: { categories?: Category[] }) => (
   <div className="bg-white p-6 rounded-lg shadow-sm h-[250px] flex flex-col overflow-y-auto">
     <div className="flex justify-between items-center mb-4 flex-shrink-0">
       <h3 className="text-lg font-semibold">Top Request Categories</h3>
@@ -120,7 +153,7 @@ const TopCategories = ({ categories }) => (
 //   return d.toLocaleString('default', { month: 'short' });
 // };
 
-const formatDate = (date, period) => {
+const formatDate = (date: string | number, period: string) => {
   if (!date) return '';
   const d = new Date(date);
 
@@ -140,18 +173,29 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const token = localStorage.getItem('token');
-  const [dashboardData, setDashboardData] = useState(null);
+  // const [dashboardData, setDashboardData] = useState(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState('Monthly');
 
-  const renderCustomizedLabel = (props) => {
+  const renderCustomizedLabel = (props: { 
+    cx: number; 
+    cy: number; 
+    midAngle: number; 
+    innerRadius: number; 
+    outerRadius: number; 
+    percent: number; 
+    value: number; 
+    name: string; 
+  }) => {
     const { cx, cy, midAngle, innerRadius, outerRadius, percent, value, name } = props;
     const RADIAN = Math.PI / 180;
     const radius = outerRadius * 1.2;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
-    const fill = DEPARTMENT_COLORS[name] || '#666';
+    // const fill = DEPARTMENT_COLORS[name] || '#666';
+    const fill = DEPARTMENT_COLORS[name as DepartmentName] || '#666';
 
     return (
       <text
@@ -173,7 +217,7 @@ const Dashboard = () => {
           throw new Error('No authentication token found');
         }
 
-        const response = await fetch(`/api/dashboard/metrics/?period=${selectedPeriod}`, {
+        const response = await fetch(`http://192.168.222.43:8080/api/dashboard/metrics/?period=${selectedPeriod}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -191,7 +235,7 @@ const Dashboard = () => {
         const data = await response.json();
         setDashboardData(data);
         setError(null);
-      } catch (error) {
+      } catch (error:any) {
         console.error('Error fetching dashboard data:', error);
         setError(error.message);
         if (error.message.includes('authentication')) {
@@ -246,22 +290,22 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
               <StatCard
                 title="Total Requests"
-                value={dashboardData?.total_requests}
+                value={dashboardData?.total_requests ?? 0}
                 isPositive={true}
               />
               <StatCard
                 title="Pending Approval"
-                value={dashboardData?.pending_approval}
+                value={dashboardData?.pending_approval ?? 0}
                 isPositive={false}
               />
               <StatCard
                 title="Approved This Month"
-                value={dashboardData?.approved_this_month}
+                value={dashboardData?.approved_this_month ?? 0}
                 isPositive={true}
               />
               <StatCard
                 title="Rejected This Month"
-                value={dashboardData?.rejected_this_month}
+                value={dashboardData?.rejected_this_month ?? 0}
                 isPositive={false}
               />
             </div>
@@ -372,7 +416,8 @@ const Dashboard = () => {
                       {dashboardData?.department_distribution?.map((entry, index) => (
                           <Cell
                               key={`cell-${index}`}
-                              fill={DEPARTMENT_COLORS[entry.department] || '#666'}
+                              // fill={DEPARTMENT_COLORS[entry.department] || '#666'}
+                              fill={DEPARTMENT_COLORS[entry.department as DepartmentName] || '#666'}
                           />
                       ))}
                     </Pie>

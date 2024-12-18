@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
+    "incremental": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
     "target": "ES2022",
-    "composite": true,
     "lib": ["ES2023"],
     "module": "ESNext",
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
+    
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -14,13 +15,13 @@
     "isolatedModules": true,
     "moduleDetection": "force",
     "noEmit": true,
+    
 
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true,
+    "noFallthroughCasesInSwitch": true
 
   },
   "include": ["vite.config.ts"]

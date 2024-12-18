@@ -5,11 +5,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "../../components/ui/dialog";
-import { ScrollArea } from "../../components/ui/scroll-area";
-import { Card, CardContent } from "../../components/ui/card";
-import { Button } from "../../components/ui/button";
-import { Textarea } from "../../components/ui/textarea";
+} from "../../components/ui/Dialog";
+import { ScrollArea } from "../../components/ui/Scroll-Area";
+import { Card, CardContent } from "../../components/ui/Card";
+import { Button } from "../../components/ui/Button";
+import { Textarea } from "../../components/ui/TextArea";
 import axios from 'axios';
 
 // Basic item interface
@@ -104,7 +104,7 @@ const PurchaseRequestDetailsModal = ({
       };
 
       const response = await axios.patch<PurchaseRequestResponse>(
-        `/api/purchase-request-status/${purchaseRequest.id}/update_status/`,
+        `http://192.168.222.43:8080/api/purchase-request-status/${purchaseRequest.id}/update_status/`,
         payload,
         {
           headers: {

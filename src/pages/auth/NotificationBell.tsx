@@ -33,7 +33,7 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ username = 'Guest' 
         }
 
         // Setup WebSocket connection with token
-        const ws = new WebSocket(`ws://localhost:8000/ws/notifications/?token=${token}`);
+        const ws = new WebSocket(`ws://192.168.222.43:8080/ws/notifications/?token=${token}`);
         wsRef.current = ws;
 
         ws.onopen = () => {
@@ -70,7 +70,7 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ username = 'Guest' 
                 return;
             }
 
-            const response = await fetch('http://localhost:8000/api/notifications/', {
+            const response = await fetch('http://192.168.222.43:8080/api/notifications/', {
                 headers: {
                     'Accept': 'application/json',
                     'Authorization': `Bearer ${token}`,
@@ -98,7 +98,7 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ username = 'Guest' 
                 return;
             }
 
-            const response = await fetch(`http://localhost:8000/api/notifications/${id}/mark-read/`, {
+            const response = await fetch(`http://192.168.222.43:8080/api/notifications/${id}/mark-read/`, {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',

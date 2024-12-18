@@ -10,12 +10,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "../../components/ui/alert-dialog";
+} from "../../components/ui/Alert-Dialog";
 
 // Inside your component:
 const navigate = useNavigate();
 
-const handleDelete = async (id) => {
+const handleDelete = async (id: string) => {
   try {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -23,7 +23,7 @@ const handleDelete = async (id) => {
       return;
     }
 
-    await axios.delete(`http://localhost:8000/api/purchase-requests/${id}/`, {
+    await axios.delete(`http://192.168.222.43:8080/api/purchase-requests/${id}/`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -31,7 +31,7 @@ const handleDelete = async (id) => {
 
     // Refresh the page or update the list
     window.location.reload(); // or use a state update method if you have one
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error deleting purchase request:', error);
     if (error.response?.status === 401) {
       localStorage.clear();

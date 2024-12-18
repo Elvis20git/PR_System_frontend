@@ -11,7 +11,7 @@ const PasswordReset = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:8000/api/password-reset/', {
+      await axios.post('http://192.168.222.43:8080/api/password-reset/', {
         email,
       });
       setMessage('Password reset instructions have been sent to your email.');

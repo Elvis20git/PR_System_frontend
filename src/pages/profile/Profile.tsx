@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Sidebar from '../../../src/components/layout/Sidebar.tsx';
-import Navbar from '../../../src/components/layout/Navbar.tsx';
+import Sidebar from '../../../src/components/layout/Sidebar';
+import Navbar from '../../../src/components/layout/Navbar';
 
 interface UserProfile {
   id: number;
@@ -29,7 +29,7 @@ const Profile = () => {
   const fetchProfile = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:8000/api/profile/', {
+      const response = await axios.get('http://192.168.222.43:8080/api/profile/', {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -57,7 +57,7 @@ const Profile = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.put(
-        'http://localhost:8000/api/profile/',
+        'http://192.168.222.43:8000/api/profile/',
         formData,
         {
           headers: {

@@ -33,11 +33,11 @@ import Register from './pages/auth/Register';
 import { PasswordReset } from './pages/auth/PasswordReset';
 import { PasswordResetConfirm } from './pages/auth/PasswordResetConfirm';
 import Dashboard from './pages/dashboard/Dashboard';
-import Profile from "./pages/profile/Profile.tsx";
-import PurchaseRequest from "./pages/purchase/PurchaseRequest.tsx";
-import PurchaseRequestList from "./pages/purchase/PurchaseRequestList.tsx";
-import PurchaseRequestUpdate from "./pages/purchase/PurchaseRequestUpdate.tsx";
-import Logout from "./pages/auth/Logout.tsx";
+import Profile from './pages/profile/Profile';
+import PurchaseRequest from "./pages/purchase/PurchaseRequest";
+import PurchaseRequestList from "./pages/purchase/PurchaseRequestList";
+import PurchaseRequestUpdate from "./pages/purchase/PurchaseRequestUpdate";
+import Logout from "./pages/auth/Logout";
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -61,7 +61,10 @@ function App() {
         <Route path="/purchase-request" element={<PurchaseRequest />} />
         <Route path="/purchase-request-list" element={<PurchaseRequestList />} />
         <Route path="/password-reset" element={<PasswordReset />} />
-        <Route path="/password-reset-confirm/:uid/:token" element={<PasswordResetConfirm />} />
+        {/* <Route path="/password-reset-confirm/:uid/:token" element={<PasswordResetConfirm />} /> */}
+
+        <Route path="/reset-password/:uid/:token" element={<PasswordResetConfirm />} />
+
         <Route path="/purchase-requests/:id/edit" element={<PurchaseRequestUpdate />} />
         <Route path="/logout" element={<Logout />} />
         {/*<Route path="/purchase-requests-update/:id/edit" element={<PurchaseRequestUpdate />} />*/}

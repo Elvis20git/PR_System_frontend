@@ -6,10 +6,10 @@
     "module": "ESNext",
     "skipLibCheck": true,
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
+    "noEmit": false,
+    "composite": true,
     "jsx": "react-jsx",
     "strict": true,
     "noUnusedLocals": true,
@@ -26,6 +26,5 @@
     "src/**/*.d.ts",
     "src/pages/**/*.ts",
     "src/pages/**/*.tsx"
-  ],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  ]
 }

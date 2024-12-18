@@ -4,15 +4,21 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from "../../components/ui/card";
-import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
-import Sidebar from '../../../src/components/layout/Sidebar.tsx';
-import Navbar from '../../../src/components/layout/Navbar.tsx';
+} from "../../components/ui/Card";
+import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/ui/Input";
+import Sidebar from '../../../src/components/layout/Sidebar';
+import Navbar from '../../../src/components/layout/Navbar';
 import { Trash2 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 
+
+interface HodUser {
+  id: number;
+  first_name: string;
+  last_name: string;
+}
 const departmentOptions = [
   'IT & Business Support',
   'Finance',
@@ -53,7 +59,7 @@ export default function PurchaseRequestUpdate() {
     }]
   });
 
-  const [hodUsers, setHodUsers] = useState([]);
+  const [hodUsers, setHodUsers] = useState<HodUser[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [initialStatus, setInitialStatus] = useState("");
@@ -70,7 +76,7 @@ export default function PurchaseRequestUpdate() {
 
         // Fetch purchase request data
         const purchaseResponse = await axios.get(
-          `http://localhost:8000/api/purchase-requests/${id}/`,
+          `http://192.168.222.43:8080/api/purchase-requests/${id}/`,
           {
             headers: { 'Authorization': `Bearer ${token}` }
           }
@@ -78,7 +84,7 @@ export default function PurchaseRequestUpdate() {
 
         // Fetch HOD users
         const hodResponse = await axios.get(
-          'http://localhost:8000/api/hod-users/',
+          'http://192.168.222.43:8080/api/hod-users/',
           {
             headers: { 'Authorization': `Bearer ${token}` }
           }
@@ -87,8 +93,8 @@ export default function PurchaseRequestUpdate() {
         setHodUsers(hodResponse.data);
         setFormData(purchaseResponse.data);
         setInitialStatus(purchaseResponse.data.status);
-        setError(null);
-      } catch (error) {
+        setError("");
+      } catch (error:any) {
         console.error('Error fetching data:', error);
         if (error.response?.status === 401) {
           localStorage.clear();
@@ -104,7 +110,7 @@ export default function PurchaseRequestUpdate() {
     fetchData();
   }, [id, navigate]);
 
-  const handleInputChange = (e, index = null) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, index: number | null = null) => {
     if (index !== null) {
       const newItems = [...formData.items];
       newItems[index] = {
@@ -120,7 +126,7 @@ export default function PurchaseRequestUpdate() {
     }
   };
 
-  const handleSelectChange = (value, field) => {
+  const handleSelectChange = (value: string, field: string) => {
     setFormData({
       ...formData,
       [field]: value
@@ -144,12 +150,12 @@ export default function PurchaseRequestUpdate() {
     });
   };
 
-  const removeItem = (index) => {
+  const removeItem = (index: number) => {
     const newItems = formData.items.filter((_, i) => i !== index);
     setFormData({ ...formData, items: newItems });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
@@ -170,7 +176,7 @@ export default function PurchaseRequestUpdate() {
       };
 
       await axios.put(
-        `http://localhost:8000/api/purchase-requests/${id}/`,
+        `http://192.168.222.43:8080/api/purchase-requests/${id}/`,
         formattedData,
         {
           headers: {
@@ -181,7 +187,7 @@ export default function PurchaseRequestUpdate() {
 
       alert('Purchase request updated successfully!');
       navigate(-1);
-    } catch (error) {
+    } catch (error:any) {
       console.error('Error:', error);
       if (error.response?.status === 401) {
         localStorage.clear();
@@ -420,7 +426,7 @@ export default function PurchaseRequestUpdate() {
         </div>
       </div>
 
-      <style jsx global>{`
+      <style>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 8px;
         }

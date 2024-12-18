@@ -23,7 +23,7 @@ const PasswordResetConfirm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post(`http://localhost:8000/api/password-reset-confirm/${uid}/${token}/`, formData);
+      await axios.post(`http://192.168.222.43:8080/api/password-reset-confirm/${uid}/${token}/`, formData);
       setSuccess(true);
       setTimeout(() => {
         navigate('/login');

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Eye, Pencil, Trash, Search } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card";
 import Sidebar from '../../../src/components/layout/Sidebar';
 import Navbar from '../../../src/components/layout/Navbar';
-import { Input } from "../../components/ui/input";
-import { Select } from "../../components/ui/select";
+import { Input } from "../../components/ui/Input";
+import { Select } from "../../components/ui/Select";
 import PurchaseRequestDetailsModal from '../modal/PurchaseRequestDetailsModal';
 import { useNavigate } from 'react-router-dom';
 
@@ -18,13 +18,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "../../components/ui/alert-dialog";
+} from "../../components/ui/Alert-Dialog";
 import axios from "axios";
+
 interface PurchaseRequest {
   id: number;
   title: string;
   department: string;
-  status: string;
+  // status: string;
+  status: "PENDING" | "APPROVED" | "REJECTED";
   purchase_type: string;
   created_at: string;
   initiator_name: string;
@@ -54,7 +56,7 @@ const PurchaseRequestList = () => {
   const [selectedRequest, setSelectedRequest] = useState<PurchaseRequestWithItems | null>(null);
   const navigate = useNavigate();
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id:number) => {
   try {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -62,7 +64,7 @@ const PurchaseRequestList = () => {
       return;
     }
 
-    await axios.delete(`http://localhost:8000/api/purchase-requests/${id}/`, {
+    await axios.delete(`http://192.168.222.43:8080/api/purchase-requests/${id}/`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -70,7 +72,7 @@ const PurchaseRequestList = () => {
 
     // Refresh the page or update the list
     window.location.reload(); // or use a state update method if you have one
-  } catch (error) {
+  } catch (error:any) {
     console.error('Error deleting purchase request:', error);
     if (error.response?.status === 401) {
       localStorage.clear();
@@ -82,7 +84,7 @@ const PurchaseRequestList = () => {
 };
   const handleViewRequest = async (prId: number) => {
     try {
-      const response = await fetch(`/api/purchase-requests/${prId}/`, {
+      const response = await fetch(`http://192.168.222.43:8080/api/purchase-requests/${prId}/`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json',
@@ -106,7 +108,7 @@ const PurchaseRequestList = () => {
 
   const fetchPurchaseRequests = async () => {
     try {
-      const response = await fetch('/api/purchase-requests-list/', {
+      const response = await fetch('http://192.168.222.43:8080/api/purchase-requests-list/', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json',
